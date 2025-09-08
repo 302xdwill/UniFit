@@ -19,6 +19,7 @@ import com.example.unifit.ui.auth.LoginScreen
 import com.example.unifit.ui.auth.RegisterScreen
 import com.example.unifit.ui.components.BottomNavBar
 import com.example.unifit.ui.home.HomeScreen
+import com.example.unifit.ui.profile.ProfileScreen
 import com.example.unifit.ui.settings.HydrationSettingsScreen
 import com.example.unifit.ui.water.WaterScreen
 import com.example.unifit.ui.water.WaterStatsScreen
@@ -111,9 +112,8 @@ class MainActivity : ComponentActivity() {
                         composable("home") {
                             HomeScreen(
                                 onNavigateWater = { navController.navigate("water") },
-                                onNavigateExercises = { /* TODO */ },
-                                onNavigateHabits = { /* TODO */ },
-                                onNavigateStats = { navController.navigate("stats") }
+                                onNavigateStats = { navController.navigate("stats") },
+                                onNavigateProfile = { navController.navigate("profile") }
                             )
                         }
 
@@ -135,6 +135,19 @@ class MainActivity : ComponentActivity() {
                             HydrationSettingsScreen { goal, start, end, interval ->
                                 println("Guardado: $goal $start $end $interval")
                             }
+                        }
+
+                        // Perfil
+                        composable("profile") {
+                            ProfileScreen(
+                                authViewModel = authViewModel,
+                                onLogout = {
+                                    authViewModel.logout()
+                                    navController.navigate("login") {
+                                        popUpTo("home") { inclusive = true }
+                                    }
+                                }
+                            )
                         }
                     }
                 }

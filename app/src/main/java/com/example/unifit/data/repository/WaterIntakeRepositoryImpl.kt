@@ -7,27 +7,50 @@ import com.example.unifit.domain.repository.WaterIntakeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class WaterIntakeRepositoryImpl(private val waterDao: WaterIntakeDao) : WaterIntakeRepository {
-    override suspend fun insertWaterIntake(water: WaterIntake): Long {
-        val entity = WaterIntakeEntity(id = water.id, userId = water.userId, amountMl = water.amountMl, date = water.date)
+class WaterIntakeRepositoryImpl(
+    private val waterDao: WaterIntakeDao
+) : WaterIntakeRepository {
+
+    override suspend fun insertWaterIntake(waterIntake: WaterIntake): Long {
+        val entity = WaterIntakeEntity(
+            id = waterIntake.id,
+            userId = waterIntake.userId,
+            amountMl = waterIntake.amountMl,
+            date = waterIntake.date
+        )
         return waterDao.insertWaterIntake(entity)
     }
 
-    override fun getWaterIntakes(userId: Long): Flow<List<WaterIntake>> {
-        return waterDao.getWaterIntakesByUser(userId).map { list ->
-            list.map { entity ->
-                WaterIntake(id = entity.id, userId = entity.userId, amountMl = entity.amountMl, date = entity.date)
-            }
-        }
-    }
-
-    override suspend fun updateWaterIntake(water: WaterIntake) {
-        val entity = WaterIntakeEntity(id = water.id, userId = water.userId, amountMl = water.amountMl, date = water.date)
+    override suspend fun updateWaterIntake(waterIntake: WaterIntake) {
+        val entity = WaterIntakeEntity(
+            id = waterIntake.id,
+            userId = waterIntake.userId,
+            amountMl = waterIntake.amountMl,
+            date = waterIntake.date
+        )
         waterDao.updateWaterIntake(entity)
     }
 
-    override suspend fun deleteWaterIntake(water: WaterIntake) {
-        val entity = WaterIntakeEntity(id = water.id, userId = water.userId, amountMl = water.amountMl, date = water.date)
+    override suspend fun deleteWaterIntake(waterIntake: WaterIntake) {
+        val entity = WaterIntakeEntity(
+            id = waterIntake.id,
+            userId = waterIntake.userId,
+            amountMl = waterIntake.amountMl,
+            date = waterIntake.date
+        )
         waterDao.deleteWaterIntake(entity)
+    }
+
+    override fun getWaterIntakesByUser(userId: Long): Flow<List<WaterIntake>> {
+        return waterDao.getWaterIntakesByUser(userId).map { list ->
+            list.map { entity ->
+                WaterIntake(
+                    id = entity.id,
+                    userId = entity.userId,
+                    amountMl = entity.amountMl,
+                    date = entity.date
+                )
+            }
+        }
     }
 }

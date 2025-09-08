@@ -22,7 +22,7 @@ class UniFitApp : Application() {
             .build()
 
         userRepository = UserRepositoryImpl(database.userDao())
-        waterRepository = WaterIntakeRepositoryImpl(database.waterDao())
+        waterRepository = WaterIntakeRepositoryImpl (database.waterIntakeDao())
         sessionManager = SessionManager(applicationContext)
     }
 }

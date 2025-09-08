@@ -1,33 +1,35 @@
 package com.example.unifit.utils
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-private val Context.dataStore by preferencesDataStore("unifit_prefs")
+val Context.dataStore by preferencesDataStore("session_prefs")
 
 class SessionManager(private val context: Context) {
 
     companion object {
-        private val KEY_USER_ID = longPreferencesKey("user_id")
+        private val USER_ID_KEY = longPreferencesKey("user_id")
     }
 
     suspend fun saveUserId(userId: Long) {
         context.dataStore.edit { prefs ->
-            prefs[KEY_USER_ID] = userId
+            prefs[USER_ID_KEY] = userId
         }
     }
 
-    suspend fun getUserId(): Long? {
-        val prefs = context.dataStore.data.first()
-        return prefs[KEY_USER_ID]
+    fun getUserId(): Flow<Long?> {
+        return context.dataStore.data.map { prefs ->
+            prefs[USER_ID_KEY]
+        }
     }
 
     suspend fun clearSession() {
         context.dataStore.edit { prefs ->
-            prefs.clear()
+            prefs.remove(USER_ID_KEY)
         }
     }
 }

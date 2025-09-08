@@ -1,161 +1,115 @@
 package com.example.unifit.ui.home
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.LocalDrink
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.unifit.R
+import java.util.*
 
 @Composable
 fun HomeScreen(
+    userName: String,
     onNavigateWater: () -> Unit,
     onNavigateHabits: () -> Unit,
     onNavigateStats: () -> Unit,
-    username: String = "Usuario",
-    completedGoals: Int = 0, // metas cumplidas
-    onNavigateExercises: () -> Unit
+    onNavigateSettings: () -> Unit,
+    onNavigateProfile: () -> Unit
 ) {
-    Scaffold { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
+    val calendar = Calendar.getInstance()
+    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+
+    val motivationalMessage = when (hour) {
+        in 5..11 -> "¡Buenos días $userName! Hoy es un gran día para hidratarte 💧"
+        in 12..18 -> "¡Vamos $userName! La tarde es perfecta para cumplir tus metas 🚀"
+        else -> "¡Buenas noches $userName! Termina tu día con disciplina ✨"
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        // Header con logo y usuario
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // 🔹 Encabezado con logo, fuego y usuario
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Logo app
-                Image(
-                    painter = painterResource(id = R.drawable.logo_unifit), // coloca tu logo en res/drawable
-                    contentDescription = "Logo",
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
+            Image(
+                painter = painterResource(id = R.drawable.logo_unifit), // 🔹 tu logo en drawable
+                contentDescription = "Logo",
+                modifier = Modifier.size(48.dp)
+            )
+
+            TextButton(onClick = onNavigateProfile) {
+                Text(
+                    text = userName,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1565C0)
+                    )
                 )
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // 🔥 Contador de metas
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground), // icono fuego en drawable
-                        contentDescription = "Metas cumplidas",
-                        tint = Color.Red,
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-
-                    // Animación contador
-                    AnimatedContent(
-                        targetState = completedGoals,
-                        transitionSpec = {
-                            // usamos fade + slide como ejemplo
-                            slideInVertically(animationSpec = tween(600)) togetherWith
-                                    slideOutVertically(animationSpec = tween(600))
-                        },
-                        label = "counter"
-                    ) { target ->
-                        Text(
-                            text = target.toString(),
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Red
-                        )
-                    }
-
-                    Spacer(Modifier.width(16.dp))
-
-                    // Usuario
-                    Text(
-                        text = username,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // 🔹 Tarjetas principales
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Agua
-                Card(
-                    onClick = onNavigateWater,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF90CAF9)) // azul suave
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.LocalDrink, contentDescription = "Agua", tint = Color.White)
-                        Spacer(Modifier.width(16.dp))
-                        Text("Controlar Agua", fontSize = 18.sp, color = Color.White)
-                    }
-                }
-
-                // Hábitos
-                Card(
-                    onClick = onNavigateHabits,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFA5D6A7)) // verde suave
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = "Hábitos", tint = Color.White)
-                        Spacer(Modifier.width(16.dp))
-                        Text("Mis Hábitos", fontSize = 18.sp, color = Color.White)
-                    }
-                }
-
-                // Estadísticas
-                Card(
-                    onClick = onNavigateStats,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFCC80)) // naranja suave
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.BarChart, contentDescription = "Estadísticas", tint = Color.White)
-                        Spacer(Modifier.width(16.dp))
-                        Text("Estadísticas", fontSize = 18.sp, color = Color.White)
-                    }
-                }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Mensaje motivador
+        Text(
+            text = motivationalMessage,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.padding(vertical = 16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botones principales
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            HomeButton("Registrar Agua", Icons.Default.LocalDrink, Color(0xFF42A5F5)) {
+                onNavigateWater()
+            }
+            HomeButton("Mis Hábitos", Icons.Default.Today, Color(0xFF66BB6A)) {
+                onNavigateHabits()
+            }
+            HomeButton("Estadísticas", Icons.Default.TrendingUp, Color(0xFFFFA726)) {
+                onNavigateStats()
+            }
+            HomeButton("Ajustes", Icons.Default.Settings, Color(0xFFAB47BC)) {
+                onNavigateSettings()
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeButton(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = color),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Icon(icon, contentDescription = title, tint = Color.White)
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(title, color = Color.White, style = MaterialTheme.typography.bodyLarge)
     }
 }

@@ -1,9 +1,14 @@
 package com.example.unifit.ui.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -16,6 +21,7 @@ fun LoginScreen(
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -23,7 +29,7 @@ fun LoginScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Iniciar Sesión", style = MaterialTheme.typography.headlineSmall)
+        Text("Iniciar sesión", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -40,7 +46,16 @@ fun LoginScreen(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                    )
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -49,30 +64,20 @@ fun LoginScreen(
             onClick = { viewModel.login(email, password) },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ingresar")
+            Text("Entrar")
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(onClick = onNavigateToRegister) {
             Text("¿No tienes cuenta? Regístrate")
         }
+    }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when (state) {
-            is AuthState.Loading -> CircularProgressIndicator()
-            is AuthState.Success -> {
-                onLoginSuccess()
-                viewModel.clearState()
-            }
-            is AuthState.Error -> {
-                Text(
-                    text = (state as AuthState.Error).message,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-            else -> {}
+    when (state) {
+        is AuthState.Success -> onLoginSuccess()
+        is AuthState.Error -> {
+            val error = (state as AuthState.Error).message
+            Snackbar { Text(error) }
         }
+        else -> {}
     }
 }
