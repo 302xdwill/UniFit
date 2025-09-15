@@ -1,58 +1,103 @@
 package com.example.unifit.ui.water
 
-import androidx.compose.foundation.background
+import android.graphics.Color
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.unifit.domain.model.Habit
 import com.example.unifit.domain.model.WaterIntake
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.data.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-enum class StatsRange { WEEKLY, MONTHLY, YEARLY }
-
 @Composable
-fun WaterStatsScreen(waterList: List<WaterIntake>) {
-    var selected = StatsRange.WEEKLY
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Estadísticas", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onClick = { selected = StatsRange.WEEKLY }) { Text("Semanal") }
-            Button(onClick = { selected = StatsRange.MONTHLY }) { Text("Mensual") }
-            Button(onClick = { selected = StatsRange.YEARLY }) { Text("Anual") }
-        }
-        Spacer(Modifier.height(12.dp))
-        val data = when (selected) {
-            StatsRange.WEEKLY -> processData(waterList, "dd/MM")
-            StatsRange.MONTHLY -> processData(waterList, "MM/yyyy")
-            StatsRange.YEARLY -> processData(waterList, "yyyy")
-        }
-        StatsChart(data)
+fun WaterStatsScreen(
+    waterList: List<WaterIntake>,
+    habits: List<Habit>
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        Text("📊 Estadísticas", style = MaterialTheme.typography.headlineSmall)
+
+        // --- Agua ---
+        WaterStatsChart(waterList)
+
+        // --- Hábitos ---
+        HabitStatsChart(habits)
     }
 }
 
 @Composable
-fun StatsChart(data: Map<String, Int>) {
-    if (data.isEmpty()) Text("No hay datos")
-    else {
-        LazyRow(modifier = Modifier.fillMaxWidth()) {
-            items(data.entries.toList().size) { idx ->
-                val entry = data.entries.toList()[idx]
-                Column(modifier = Modifier.padding(8.dp).width(70.dp), verticalArrangement = Arrangement.Bottom) {
-                    Box(modifier = Modifier.height((entry.value / 10).dp).fillMaxWidth().background(MaterialTheme.colorScheme.primary))
-                    Spacer(Modifier.height(6.dp))
-                    Text(entry.key, style = MaterialTheme.typography.bodySmall)
+fun WaterStatsChart(waterList: List<WaterIntake>) {
+    Text("💧 Consumo de Agua (últimos 7 días)", style = MaterialTheme.typography.titleMedium)
+
+    val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
+    val grouped = waterList.groupBy { sdf.format(it.date) }
+        .mapValues { it.value.sumOf { intake -> intake.amountMl } }
+
+    val entries = grouped.entries.mapIndexed { index, (day, total) ->
+        BarEntry(index.toFloat(), total.toFloat())
+    }
+
+    AndroidView(
+        factory = { context ->
+            BarChart(context).apply {
+                val dataSet = BarDataSet(entries, "Agua (ml)").apply {
+                    color = Color.parseColor("#2196F3")
+                    valueTextColor = Color.BLACK
+                    valueTextSize = 12f
                 }
+                this.data = BarData(dataSet)
+                this.description = Description().apply { text = "Consumo diario" }
+                this.animateY(1000)
             }
-        }
-    }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+    )
 }
 
-fun processData(list: List<WaterIntake>, pattern: String): Map<String, Int> {
-    val sdf = SimpleDateFormat(pattern, Locale.getDefault())
-    return list.groupBy { sdf.format(it.date) }.mapValues { (_, v) -> v.sumOf { it.amountMl } }
+@Composable
+fun HabitStatsChart(habits: List<Habit>) {
+    Text("✅ Cumplimiento de Hábitos", style = MaterialTheme.typography.titleMedium)
+
+    val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
+    val grouped = habits.groupBy { sdf.format(it.time) }
+        .mapValues { it.value.count { habit -> habit.done } }
+
+    val entries = grouped.entries.mapIndexed { index, (day, doneCount) ->
+        Entry(index.toFloat(), doneCount.toFloat())
+    }
+
+    AndroidView(
+        factory = { context ->
+            LineChart(context).apply {
+                val dataSet = LineDataSet(entries, "Hábitos cumplidos").apply {
+                    color = Color.parseColor("#4CAF50")
+                    circleRadius = 5f
+                    setCircleColor(Color.parseColor("#388E3C"))
+                    lineWidth = 2f
+                    valueTextColor = Color.BLACK
+                }
+                this.data = LineData(dataSet)
+                this.description = Description().apply { text = "Progreso de hábitos" }
+                this.animateX(1000)
+            }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+    )
 }

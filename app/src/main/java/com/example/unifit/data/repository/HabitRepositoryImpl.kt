@@ -6,14 +6,14 @@ import com.example.unifit.domain.model.Habit
 import com.example.unifit.domain.repository.HabitRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.Date
 
 class HabitRepositoryImpl(
     private val habitDao: HabitDao
 ) : HabitRepository {
 
     override suspend fun insertHabit(habit: Habit): Long {
-        val entity = habit.toEntity()
-        return habitDao.insertHabit(entity)
+        return habitDao.insertHabit(habit.toEntity())
     }
 
     override suspend fun updateHabit(habit: Habit) {
@@ -28,11 +28,11 @@ class HabitRepositoryImpl(
         return habitDao.getHabitsByUser(userId).map { list -> list.map { it.toDomain() } }
     }
 
-    override fun getHabitsForDay(
-        userId: Long,
-        day: Int
-    ): Flow<List<Habit>> {
-        TODO("Not yet implemented")
+    override fun getHabitsForDay(userId: Long, day: Int): Flow<List<Habit>> {
+        // Podemos filtrar aquí o crear un query en el DAO
+        return habitDao.getHabitsByUser(userId).map { list ->
+            list.filter { it.dayOfWeek == day }.map { it.toDomain() }
+        }
     }
 }
 
@@ -43,7 +43,7 @@ private fun Habit.toEntity() = HabitEntity(
     name = name,
     description = description,
     dayOfWeek = dayOfWeek,
-    time = time,   // ahora es Long
+    time = time.time,   // ✅ Date → Long
     done = done
 )
 
@@ -53,6 +53,6 @@ private fun HabitEntity.toDomain() = Habit(
     name = name,
     description = description,
     dayOfWeek = dayOfWeek,
-    time = time,   // también Long
+    time = Date(time),   // ✅ Long → Date
     done = done
 )

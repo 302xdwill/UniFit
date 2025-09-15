@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -19,10 +20,18 @@ fun ProfileScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Perfil de Usuario", style = MaterialTheme.typography.headlineSmall)
+        Text("👤 Perfil de Usuario", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
 
-        Text("Nombre: $userName", style = MaterialTheme.typography.bodyLarge)
-        Text("Email: $userEmail", style = MaterialTheme.typography.bodyLarge)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            elevation = CardDefaults.cardElevation(4.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Nombre: $userName", style = MaterialTheme.typography.bodyLarge)
+                Text("Email: $userEmail", style = MaterialTheme.typography.bodyLarge)
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 

@@ -4,9 +4,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object DateUtils {
-    fun formatDateTime(date: Date): String =
-        SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(date)
-
-    fun formatDate(date: Date): String =
-        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(date)
+    fun formatDay(date: Date): String {
+        val sdf = SimpleDateFormat("dd/MM", Locale.getDefault())
+        return sdf.format(date)
+    }
 }

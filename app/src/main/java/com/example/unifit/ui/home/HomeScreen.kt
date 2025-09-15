@@ -32,9 +32,9 @@ fun HomeScreen(
     val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
     val motivationalMessage = when (hour) {
-        in 5..11 -> "¡Buenos días $userName! Hoy es un gran día para hidratarte 💧"
-        in 12..18 -> "¡Vamos $userName! La tarde es perfecta para cumplir tus metas 🚀"
-        else -> "¡Buenas noches $userName! Termina tu día con disciplina ✨"
+        in 5..11 -> "☀️ ¡Buenos días $userName! Hoy es un gran día para hidratarte 💧"
+        in 12..18 -> "🚀 ¡Vamos $userName! La tarde es perfecta para cumplir tus metas"
+        else -> "🌙 ¡Buenas noches $userName! Termina tu día con disciplina ✨"
     }
 
     Column(
@@ -43,16 +43,16 @@ fun HomeScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Header con logo y usuario
+        // 🔹 Header con logo y usuario
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.logo_unifit), // 🔹 tu logo en drawable
+                painter = painterResource(id = R.drawable.logo_unifit),
                 contentDescription = "Logo",
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(56.dp)
             )
 
             TextButton(onClick = onNavigateProfile) {
@@ -68,7 +68,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mensaje motivador
+        // 🔹 Mensaje motivador
         Text(
             text = motivationalMessage,
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
@@ -77,7 +77,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botones principales
+        // 🔹 Botones principales
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth()
@@ -105,11 +105,12 @@ fun HomeButton(title: String, icon: androidx.compose.ui.graphics.vector.ImageVec
         colors = ButtonDefaults.buttonColors(containerColor = color),
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(12.dp)
+            .height(64.dp), // más grande
+        shape = RoundedCornerShape(16.dp), // más redondeado
+        elevation = ButtonDefaults.buttonElevation(6.dp)
     ) {
-        Icon(icon, contentDescription = title, tint = Color.White)
+        Icon(icon, contentDescription = title, tint = Color.White, modifier = Modifier.size(28.dp))
         Spacer(modifier = Modifier.width(12.dp))
-        Text(title, color = Color.White, style = MaterialTheme.typography.bodyLarge)
+        Text(title, color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium))
     }
 }

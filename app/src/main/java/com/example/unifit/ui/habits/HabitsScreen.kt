@@ -1,14 +1,20 @@
 package com.example.unifit.ui.habits
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.unifit.domain.model.Habit
 import com.example.unifit.ui.habits.components.HabitDialog
@@ -29,20 +35,25 @@ fun HabitsScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        // Lista de hábitos
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(habits) { habit ->
-                HabitItem(
-                    habit = habit,
-                    onEdit = {
-                        habitToEdit = habit
-                        showDialog = true
-                    },
-                    onDelete = { viewModel.deleteHabit(habit) },
-                    onToggleDone = { updated ->
-                        viewModel.updateHabit(updated.copy(done = !updated.done))
-                    }
-                )
+        if (habits.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Aún no tienes hábitos registrados 📝")
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                habits.forEach { habit ->
+                    HabitCard(
+                        habit = habit,
+                        onEdit = {
+                            habitToEdit = habit
+                            showDialog = true
+                        },
+                        onDelete = { viewModel.deleteHabit(habit) },
+                        onToggleDone = { updated ->
+                            viewModel.updateHabit(updated.copy(done = !updated.done))
+                        }
+                    )
+                }
             }
         }
 
@@ -51,9 +62,10 @@ fun HabitsScreen(
         // Botón para añadir hábito
         Button(
             onClick = { habitToEdit = null; showDialog = true },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Añadir Hábito")
+            Text("Añadir Hábito ➕")
         }
     }
 
@@ -75,7 +87,7 @@ fun HabitsScreen(
 }
 
 @Composable
-fun HabitItem(
+fun HabitCard(
     habit: Habit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -83,17 +95,26 @@ fun HabitItem(
 ) {
     val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
 
+    val scale by animateFloatAsState(if (habit.done) 1.2f else 1f, label = "")
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (habit.done) Color(0xFFD0F0C0) else Color(0xFFE3F2FD)
+        ),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
+            Column(Modifier.weight(1f)) {
                 Text(habit.name, style = MaterialTheme.typography.titleMedium)
                 Text(habit.description, style = MaterialTheme.typography.bodyMedium)
                 Text(
@@ -105,9 +126,10 @@ fun HabitItem(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 IconButton(onClick = { onToggleDone(habit) }) {
                     Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Marcar",
-                        tint = if (habit.done) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Marcar como hecho",
+                        tint = if (habit.done) Color(0xFF2E7D32) else Color.Gray,
+                        modifier = Modifier.scale(scale)
                     )
                 }
                 IconButton(onClick = onEdit) {
